@@ -19,9 +19,11 @@ module BestBuy
 
       @affiliate_tracking_id = options[:affiliate_tracking_id]
 
-      @endpoint = options[:endpoint]
-      unless VALID_ENDPOINTS.include? @endpoint
-        fail APIError, "The endpoint \"#{@endpoint}\" is currently unsupported. Supported endpoints are: #{VALID_ENDPOINTS.join(", ")}"
+      @endpoints = []
+      if VALID_ENDPOINTS.include? options[:endpoint]
+        @endpoints << options[:endpoint]
+      else
+        fail APIError, "The endpoint \"#{options[:endpoint]}\" is currently unsupported. Supported endpoints are: #{VALID_ENDPOINTS.join(", ")}"
       end
 
       @filters = options[:filters]
@@ -30,7 +32,19 @@ module BestBuy
 
     # @returns [String] The URL that will be used for this Request
     def to_s
-      "https://api.bestbuy.com/v1/#{@endpoint}(#{@filters.join('|')})?#{query_string}"
+      "https://api.bestbuy.com/v1/" +
+        endpoints_to_s(@endpoints, @filters) +
+        "?#{query_string}"
+    end
+
+    def endpoints_to_s(endpoints, *filters)
+      endpoints.collect do |endpoint|
+        "#{endpoint_to_s(endpoint, filters)}"
+      end.join('+')
+    end
+
+    def endpoint_to_s(endpoint, *filters)
+      "#{endpoint}(#{filters.join('|')})"
     end
 
     # Converts the request into a cURL request for debugging purposes
