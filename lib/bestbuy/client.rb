@@ -18,10 +18,8 @@ module BestBuy
     # @return Array<Hash> Products that were found in the BestBuy API
     def products(params = {})
       filters = params.map {|key, value| "#{key}=#{value}"}
-      BestBuy::Request.new(api_key: @api_key,
-                           affiliate_tracking_id: @affiliate_tracking_id,
-                           endpoint: 'products',
-                           filters: filters)
+      request.add_endpoint('products', filters)
+      self
     end
 
     # Issues a request for stores held in the BestBuy API
@@ -40,11 +38,21 @@ module BestBuy
       end
 
       filters << params.map {|key, value| "#{key}=#{value}"}
-      BestBuy::Request.new(api_key: @api_key,
-                           affiliate_tracking_id: @affiliate_tracking_id,
-                           endpoint: 'stores',
-                           filters: filters)
+      request.add_endpoint('stores', filters)
+      self
     end
 
+    def to_s
+      request.to_s
+    end
+
+    def to_curl
+      request.to_curl
+    end
+
+    protected
+    def request
+      @request ||= BestBuy::Request.new(api_key: @api_key, affiliate_tracking_id: @affiliate_tracking_id)
+    end
   end
 end

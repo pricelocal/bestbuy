@@ -40,4 +40,18 @@ describe BestBuy::Client do
     end
   end
 
+  describe 'multiple endpoints - in-store availability' do
+    let(:query) { bby.stores(lat: '42.292659', lng: '-83.7369197', radius: 20).products(upc: '004815162342') }
+
+    it 'returns an in-store availability query for a given upc within a given latitude, longitude, and radius' do
+      expect(query.to_s).to eq('https://api.bestbuy.com/v1/stores(area(42.292659,-83.7369197,20))+products(upc=004815162342)?apiKey=1234deadbeef&format=json')
+    end
+
+    describe 'to_curl' do
+      it 'returns an exec\'able curl command' do
+        expect(query.to_curl).to eq('curl https://api.bestbuy.com/v1/stores(area(42.292659,-83.7369197,20))+products(upc=004815162342)?apiKey=1234deadbeef&format=json')
+      end
+    end
+  end
+
 end
