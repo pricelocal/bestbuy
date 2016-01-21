@@ -77,7 +77,8 @@ module BestBuy
     # @return Array<Hash> The results returned from the API.
     def call
       resp = URI.parse(to_s).read
-      ::MultiJson.decode(resp)['products']
+      json_resp = ::MultiJson.decode(resp)
+      json_resp.fetch('products', json_resp)
     end
 
     # Returns the query string that will be used for this request. Query string parameters are returned in alphabetical order.
