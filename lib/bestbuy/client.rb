@@ -28,8 +28,18 @@ module BestBuy
     #
     # @param params[Hash] Parameters passed to the store API call which filter the result set. Parameters are combined by logical OR
     # @return Array<Hash> Stores that were found in the BestBuy API
-    def stores(query = '', params = {})
-      filters = [query] + params.map {|key, value| "#{key}=#{value}"}
+    def stores(params = {})
+      filters = []
+
+      lat = params.delete(:lat)
+      lng = params.delete(:lng)
+      radius = params.delete(:radius) || 20
+
+      if lat && lng
+        filters << "area(#{lat},#{lng},#{radius})"
+      end
+
+      filters << params.map {|key, value| "#{key}=#{value}"}
       BestBuy::Request.new(api_key: @api_key,
                            affiliate_tracking_id: @affiliate_tracking_id,
                            endpoint: 'stores',

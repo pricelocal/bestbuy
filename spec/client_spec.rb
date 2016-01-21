@@ -10,19 +10,34 @@ describe BestBuy::Client do
     expect(bby.products(upc: '8675309').to_s).to eq('https://api.bestbuy.com/v1/products(upc=8675309)?LID=foobar&apiKey=123456&format=json')
   end
 
+  let(:bby) { BestBuy::Client.new(api_key: '1234deadbeef') }
+
   describe 'products' do
-    let(:bby) { BestBuy::Client.new(api_key: '1234deadbeef') }
+    let(:query) { bby.products(upc: '004815162342') }
 
     it 'returns a products query for a given upc' do
-      query = bby.products(upc: '004815162342')
       expect(query.to_s).to eq('https://api.bestbuy.com/v1/products(upc=004815162342)?apiKey=1234deadbeef&format=json')
     end
 
     describe 'to_curl' do
       it 'returns an exec\'able curl command' do
-        query = bby.products(upc: '004815162342')
         expect(query.to_curl).to eq('curl https://api.bestbuy.com/v1/products(upc=004815162342)?apiKey=1234deadbeef&format=json')
       end
     end
   end
+
+  describe 'stores' do
+    let(:query) { bby.stores(lat: '42.292659', lng: '-83.7369197', radius: 20) }
+
+    it 'returns a stores query for a given latitude, longitude, and radius' do
+      expect(query.to_s).to eq('https://api.bestbuy.com/v1/stores(area(42.292659,-83.7369197,20))?apiKey=1234deadbeef&format=json')
+    end
+
+    describe 'to_curl' do
+      it 'returns an exec\'able curl command' do
+        expect(query.to_curl).to eq('curl https://api.bestbuy.com/v1/stores(area(42.292659,-83.7369197,20))?apiKey=1234deadbeef&format=json')
+      end
+    end
+  end
+
 end

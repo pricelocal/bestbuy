@@ -49,7 +49,7 @@ module BestBuy
     end
 
     def endpoint_to_s(endpoint)
-      "#{endpoint[:name]}(#{endpoint[:filters].join('|')})"
+      "#{endpoint[:name]}(#{endpoint[:filters].flatten.join('|')})"
     end
 
     # Converts the request into a cURL request for debugging purposes

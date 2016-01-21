@@ -1,3 +1,4 @@
+require "pp"
 require "bestbuy/version"
 require "bestbuy/client"
 require "bestbuy/request"
