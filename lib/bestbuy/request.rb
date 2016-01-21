@@ -9,6 +9,7 @@ module BestBuy
     # Endpoints that are supported by this API client
     VALID_ENDPOINTS = [
       'products',
+      'stores'
     ]
     # @param api_key[String] The API key required by the BestBuy API
     # @param endpoint[String] The endpoint of the API that this request will be made against. Must be one of VALID_ENDPOINTS
@@ -20,31 +21,35 @@ module BestBuy
       @affiliate_tracking_id = options[:affiliate_tracking_id]
 
       @endpoints = []
-      if VALID_ENDPOINTS.include? options[:endpoint]
-        @endpoints << options[:endpoint]
-      else
-        fail APIError, "The endpoint \"#{options[:endpoint]}\" is currently unsupported. Supported endpoints are: #{VALID_ENDPOINTS.join(", ")}"
-      end
+      @filters = options[:filters] || []
+      add_endpoint(options[:endpoint], options[:filters]) if options[:endpoint]
 
-      @filters = options[:filters]
       @show_params = []
+    end
+
+    def add_endpoint(name, *filters)
+      if VALID_ENDPOINTS.include? name
+        @endpoints << { name: name, filters: filters }
+      else
+        fail APIError, "The endpoint \"#{name}\" is currently unsupported. Supported endpoints are: #{VALID_ENDPOINTS.join(", ")}"
+      end
     end
 
     # @returns [String] The URL that will be used for this Request
     def to_s
       "https://api.bestbuy.com/v1/" +
-        endpoints_to_s(@endpoints, @filters) +
+        endpoints_to_s(*@endpoints) +
         "?#{query_string}"
     end
 
-    def endpoints_to_s(endpoints, *filters)
+    def endpoints_to_s(*endpoints)
       endpoints.collect do |endpoint|
-        "#{endpoint_to_s(endpoint, filters)}"
+        "#{endpoint_to_s(endpoint)}"
       end.join('+')
     end
 
-    def endpoint_to_s(endpoint, *filters)
-      "#{endpoint}(#{filters.join('|')})"
+    def endpoint_to_s(endpoint)
+      "#{endpoint[:name]}(#{endpoint[:filters].join('|')})"
     end
 
     # Converts the request into a cURL request for debugging purposes
