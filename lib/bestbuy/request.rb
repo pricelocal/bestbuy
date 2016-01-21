@@ -57,7 +57,7 @@ module BestBuy
     #
     # @return Array<Hash> The results returned from the API.
     def call
-      resp = ::Net::HTTP.get URI(to_s)
+      resp = URI.parse(to_s).read
       ::MultiJson.decode(resp)['products']
     end
 
