@@ -13,14 +13,18 @@ module BestBuy
     # @param api_key[String] The API key required by the BestBuy API
     # @param endpoint[String] The endpoint of the API that this request will be made against. Must be one of VALID_ENDPOINTS
     # @param filters[Array<String>] Filters that will be applied to the particular resource being requested.
-    def initialize(api_key:, endpoint:, affiliate_tracking_id: nil, filters: [])
-      unless VALID_ENDPOINTS.include? endpoint
-        fail APIError, "The endpoint \"#{endpoint}\" is currently unsupported. Supported endpoints are: #{VALID_ENDPOINTS.join(", ")}"
+    def initialize(options = {})
+      @api_key = options[:api_key]
+      raise ArgumentError, "API Key not set" unless @api_key
+
+      @affiliate_tracking_id = options[:affiliate_tracking_id]
+
+      @endpoint = options[:endpoint]
+      unless VALID_ENDPOINTS.include? @endpoint
+        fail APIError, "The endpoint \"#{@endpoint}\" is currently unsupported. Supported endpoints are: #{VALID_ENDPOINTS.join(", ")}"
       end
-      @endpoint = endpoint
-      @filters = filters
-      @affiliate_tracking_id = affiliate_tracking_id
-      @api_key = api_key
+
+      @filters = options[:filters]
       @show_params = []
     end
 
