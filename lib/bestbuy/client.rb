@@ -50,6 +50,10 @@ module BestBuy
       request.to_curl
     end
 
+    def call
+      request.call
+    end
+
     protected
     def request
       @request ||= BestBuy::Request.new(api_key: @api_key, affiliate_tracking_id: @affiliate_tracking_id)
