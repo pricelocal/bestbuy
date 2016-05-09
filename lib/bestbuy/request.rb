@@ -79,10 +79,10 @@ module BestBuy
       uri = URI.parse(to_s)
       resp = http_request(uri)
       if resp.is_a?(Net::HTTPSuccess) && resp.body.present?
-        json_resp = ::MultiJson.decode(resp.body)
+        json_resp = JSON.parse(resp.body)
         json_resp.fetch('products', json_resp)
       else
-        {}
+        []
       end
     end
 
