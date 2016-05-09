@@ -76,9 +76,14 @@ module BestBuy
     #
     # @return Array<Hash> The results returned from the API.
     def call
-      resp = URI.parse(to_s).read
-      json_resp = ::MultiJson.decode(resp)
-      json_resp.fetch('products', json_resp)
+      uri = URI.parse(to_s)
+      resp = http_request(uri)
+      if resp.is_a?(Net::HTTPSuccess) && resp.body.present?
+        json_resp = ::MultiJson.decode(resp.body)
+        json_resp.fetch('products', json_resp)
+      else
+        {}
+      end
     end
 
     # Returns the query string that will be used for this request. Query string parameters are returned in alphabetical order.
@@ -94,6 +99,21 @@ module BestBuy
     end
 
     private
+    def http_request(url, method = :get, params = {})
+      # Access the API through http or https
+      # http://stackoverflow.com/questions/5244887/eoferror-end-of-file-reached-issue-with-nethttp
+      klass = (method == :get ? Net::HTTP::Get : Net::HTTP::Post)
+      req = klass.new(url.request_uri)
+      req.set_form_data(params)
+
+      http = Net::HTTP.new(url.host, url.port)
+      http.use_ssl = (url.scheme == 'https')
+
+      http.request(req)
+      #http_response = http.request(req)
+      #http_response.is_a?(Net::HTTPSuccess) && http_response.body.present? ?
+        #JSON.parse(http_response.body) : {}
+    end
 
     # Inserts the query string parameter responsible for crediting affiliate links
     def affiliate_param
