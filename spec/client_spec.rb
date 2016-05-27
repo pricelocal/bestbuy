@@ -13,15 +13,31 @@ describe BestBuy::Client do
   let(:bby) { BestBuy::Client.new(api_key: '1234deadbeef') }
 
   describe 'products' do
-    let(:query) { bby.products(upc: '004815162342') }
+    context 'single upc' do
+      let(:query) { bby.products(upc: '004815162342') }
 
-    it 'returns a products query for a given upc' do
-      expect(query.to_s).to eq('https://api.bestbuy.com/v1/products(upc=004815162342)?apiKey=1234deadbeef&format=json')
+      it 'returns a products query for a given upc' do
+        expect(query.to_s).to eq('https://api.bestbuy.com/v1/products(upc=004815162342)?apiKey=1234deadbeef&format=json')
+      end
+
+      describe 'to_curl' do
+        it 'returns an exec\'able curl command' do
+          expect(query.to_curl).to eq('curl https://api.bestbuy.com/v1/products(upc=004815162342)?apiKey=1234deadbeef&format=json')
+        end
+      end
     end
 
-    describe 'to_curl' do
-      it 'returns an exec\'able curl command' do
-        expect(query.to_curl).to eq('curl https://api.bestbuy.com/v1/products(upc=004815162342)?apiKey=1234deadbeef&format=json')
+    context 'multiple upcs' do
+      let(:query) { bby.products(upc: %w{004815162343 004815162344}) }
+
+      it 'returns a products query for two given upcs' do
+        expect(query.to_s).to eq('https://api.bestbuy.com/v1/products(upc=004815162343|upc=004815162344)?apiKey=1234deadbeef&format=json')
+      end
+
+      describe 'to_curl' do
+        it 'returns an exec\'able curl command' do
+          expect(query.to_curl).to eq('curl https://api.bestbuy.com/v1/products(upc=004815162343|upc=004815162344)?apiKey=1234deadbeef&format=json')
+        end
       end
     end
   end

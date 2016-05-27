@@ -17,7 +17,10 @@ module BestBuy
     # @param params[Hash] Parameters passed to the products API call which filter the result set. Parameters are combined by logical OR
     # @return Array<Hash> Products that were found in the BestBuy API
     def products(params = {})
-      filters = params.map {|key, value| "#{key}=#{value}"}
+      filters = params.flat_map do |key, values|
+        vals = *values
+        vals.collect { |v| "#{key}=#{v}" }
+      end
       request.add_endpoint('products', filters)
       self
     end
