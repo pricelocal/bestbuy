@@ -76,8 +76,10 @@ module BestBuy
     #
     # @return Array<Hash> The results returned from the API.
     def call
-      uri = URI.parse(to_s)
+      encoded_url = URI.encode(to_s)
+      uri = URI.parse(encoded_url)
       resp = http_request(uri)
+
       if resp.is_a?(Net::HTTPSuccess) && resp.body.present?
         json_resp = JSON.parse(resp.body)
         json_resp.fetch('products', json_resp)
