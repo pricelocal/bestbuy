@@ -22,14 +22,20 @@ module BestBuy
 
       @endpoints = []
       @filters = options[:filters] || []
-      add_endpoint(options[:endpoint], options[:filters]) if options[:endpoint]
+      @filter_operation = options[:filter_operation] || :or
+      add_endpoint(options[:endpoint], options[:filter_operation] || :or, options[:filters]) if options[:endpoint]
 
       @show_params = []
     end
 
     def add_endpoint(name, *filters)
       if VALID_ENDPOINTS.include? name
-        @endpoints << { name: name, filters: filters }
+        filter_operation = :or
+        if filters.any? && filters[0].is_a?(Symbol)
+          sym = filters.delete_at(0)
+          filter_operation = :and if sym == :and
+        end
+        @endpoints << { name: name, filters: filters, filter_operation: filter_operation }
       else
         fail APIError, "The endpoint \"#{name}\" is currently unsupported. Supported endpoints are: #{VALID_ENDPOINTS.join(", ")}"
       end
@@ -49,7 +55,8 @@ module BestBuy
     end
 
     def endpoint_to_s(endpoint)
-      "#{endpoint[:name]}(#{endpoint[:filters].flatten.join('|')})"
+      operator = endpoint[:filter_operation] == :and ? '&' : '|'
+      "#{endpoint[:name]}(#{endpoint[:filters].flatten.join(operator)})"
     end
 
     # Converts the request into a cURL request for debugging purposes

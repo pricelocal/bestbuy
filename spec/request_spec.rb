@@ -10,6 +10,11 @@ describe BestBuy::Request do
     expect(req.to_s).to eq("https://api.bestbuy.com/v1/products(upc=004815162342|longDescription=GoPro*)?apiKey=1234&format=json")
   end
 
+  it "joins multiple and_filters with ampersands" do
+    req = described_class.new(api_key: '1234', endpoint: 'products', filters: ["upc=004815162342", "longDescription=GoPro*"], filter_operation: :and)
+    expect(req.to_s).to eq("https://api.bestbuy.com/v1/products(upc=004815162342&longDescription=GoPro*)?apiKey=1234&format=json")
+  end
+
   describe 'add_endpoint' do
     it "joins multiple endpoints with plusses" do
       req = described_class.new(api_key: '1234', endpoint: 'products', filters: ["upc=004815162342", "longDescription=GoPro*"])
