@@ -29,7 +29,20 @@ module BestBuy
 
     def add_endpoint(name, *filters)
       if VALID_ENDPOINTS.include? name
-        @endpoints << { name: name, filters: filters }
+        found_endpoint = false
+        if @endpoints.present? && @endpoints.any?
+          @endpoints.each do |endpoint|
+            if endpoint[:name] == name
+              endpoint[:filters] = filters
+              found_endpoint = true
+            end
+            break if found_endpoint
+          end
+        end
+
+        if !found_endpoint
+          @endpoints << { name: name, filters: filters }
+        end
       else
         fail APIError, "The endpoint \"#{name}\" is currently unsupported. Supported endpoints are: #{VALID_ENDPOINTS.join(", ")}"
       end
